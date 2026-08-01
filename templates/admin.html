@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Admin{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th class="align-left" 
+                    data-sort-field="channel_name" 
+                    {% if sort_directions.get('channel_name') %}
+                        data-sort-direction="{{ sort_directions.get('channel_name') }}"
+                    {% endif %}
+                    {% if primary_sort_field == 'channel_name' %}
+                        aria-sort="{{ primary_sort_direction }}"
+                    {% endif %}
+                    >
+                        <button type="button" class="th-sort">
+                            <span class="th-label">Channel</span>
+                            <span aria-hidden="true" class="sort-icon"></span>
+                        </button>
+                    </th>
+
+                    <th class="align-left" 
+                    data-sort-field="category_name" 
+                    {% if sort_directions.get('category_name') %}
+                        data-sort-direction="{{ sort_directions.get('category_name') }}"
+                    {% endif %}
+                    {% if primary_sort_field == 'category_name' %}
+                        aria-sort="{{ primary_sort_direction }}"
+                    {% endif %}
+                    >
+                        <button type="button" class="th-sort">
+                            <span class="th-label">Category</span>
+                            <span aria-hidden="true" class="sort-icon"></span>
+                        </button>
+                    </th>
+
+                    <th class="align-right" 
+                    data-sort-field="subscribed_at" 
+                    {% if sort_directions.get('subscribed_at') %}
+                        data-sort-direction="{{ sort_directions.get('subscribed_at') }}"
+                    {% endif %}
+                    {% if primary_sort_field == 'subscribed_at' %}
+                        aria-sort="{{ primary_sort_direction }}"
+                    {% endif %}
+                    >
+                        <button type="button" class="th-sort">
+                            <span class="th-label">Subscribed</span>
+                            <span aria-hidden="true" class="sort-icon"></span>
+                        </button>
+                    </th>
+
+                    <th class="align-right" 
+                    data-sort-field="refreshed_at" 
+                    {% if sort_directions.get('refreshed_at') %}
+                        data-sort-direction="{{ sort_directions.get('refreshed_at') }}"
+                    {% endif %}
+                    {% if primary_sort_field == 'refreshed_at' %}
+                        aria-sort="{{ primary_sort_direction }}"
+                    {% endif %}
+                    >
+                        <button type="button" class="th-sort">
+                            <span class="th-label">Refreshed</span>
+                            <span aria-hidden="true" class="sort-icon"></span>
+                        </button>
+                    </th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                {% for channel in channels %}
+                <tr
+                id="channel-{{ channel.channel_id }}"
+                data-channel-id="{{ channel.channel_id }}"
+                class="{% if not channel.category_name %}uncategorized{% endif %}"
+                >
+                    <td class="channel-name align-left">
+                        <a
+                        href="https://www.youtube.com/channel/{{ channel.channel_id }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="channel-link"
+                        data-channel-id="{{ channel.channel_id }}"
+                        >
+                            <span class="channel-link-text">{{ channel.channel_name }}</span>
+                        </a>
+                    </td>
+
+                    <td class="category-cell align-left">
+                        <form class="inline-form" method="POST" action="{{ url_for('admin_assign') }}">
+                            <input type="hidden" name="channel-id" value="{{ channel.channel_id }}">
+                            <select
+                            class="category-select"
+                            data-channel-id="{{ channel.channel_id }}"
+                            data-initial-category="{{ channel.category_name or '' }}"
+                            >
+                                <option value="0">Unassigned</option>
+                                {% for category in categories %}
+                                    <option 
+                                    value="{{ category.category_id }}" 
+                                    {% if channel.category_name == category.category_name %}selected{% endif %}
+                                    >
+                                        {{ category.category_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </td>
+
+                    <td class="align-right">{{ channel.subscribed_at_display }}</td>
+
+                    <td class="align-right {% if channel.is_fresh %}fresh{% else %}stale{% endif %}">
+                        {{ channel.refreshed_at_display or 'Never' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    
+    <script id="admin-categories-data" type="application/json">{{ categories | tojson }}</script>
+
+    <script src="{{ url_for('static', filename='js/auth_helpers.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_actions.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_assign.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_create.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_delete.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_rename.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_sort.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_update.js') }}"></script>
+{% endblock %}

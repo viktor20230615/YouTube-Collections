@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}YouTube Collections{% endblock %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+        {% block styles %}{% endblock %}
+    </head>
+
+
+    <body>
+        {% set category_name = category_name | default(None) %}
+        {% set uncategorized = uncategorized | default(False) %}
+
+        <nav class="nav-top">
+            <div class="nav-left">
+                <div class="nav-scroll-button-wrapper nav-scroll-button-wrapper-left">
+                    <button 
+                    type="button" 
+                    class="nav-scroll-button nav-scroll-button-left" 
+                    aria-label="Scroll categories left" 
+                    hidden
+                    >
+                        ◀
+                    </button>
+                </div>
+
+                <div class="nav-left-scroll">
+                    <a
+                    href="{{ url_for('index') }}"
+                    class="nav-component {% if request.endpoint == 'index' and not category_name and not uncategorized %}active{% endif %}"
+                    >
+                        All Channels
+                    </a>
+
+                    {% for name in used_category_names %}
+                    <a
+                    href="{{ url_for('index', category=name) }}"
+                    class="nav-component {% if request.endpoint == 'index' and category_name == name %}active{% endif %}"
+                    >
+                        {{ name }}
+                    </a>
+                    {% endfor %}
+
+                    <a
+                    href="{{ url_for('index', uncategorized=1) }}"
+                    class="nav-component {% if request.endpoint == 'index' and uncategorized %}active{% endif %}"
+                    >
+                        Uncategorized
+                    </a>
+                </div>
+
+                <div class="nav-scroll-button-wrapper nav-scroll-button-wrapper-right">
+                    <button 
+                    type="button" 
+                    class="nav-scroll-button nav-scroll-button-right" 
+                    aria-label="Scroll categories right"
+                    hidden
+                    >
+                        ▶
+                    </button>
+                </div>
+            </div>
+
+            <div class="nav-right">
+                {% if nav_menu_mode == 'refresh' %}
+                <button
+                id="refresh-button"
+                class="nav-dropdown-toggle nav-component"
+                data-category="{{ category_name or '' }}"
+                data-uncategorized="{{ '1' if uncategorized else '0' }}"
+                type="button"
+                >
+                    Refresh
+                </button>
+
+                {% elif nav_menu_mode == 'actions' %}
+                <div class="nav-dropdown-wrapper">
+                    <button
+                    id="admin-actions-toggle"
+                    class="nav-dropdown-toggle nav-component"
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded="false"
+                    aria-controls="admin-actions-menu"
+                    >
+                        Actions <span>▾</span>
+                    </button>
+
+                    <div id="admin-actions-menu" class="nav-dropdown-menu" hidden>
+                        <button id="action-create-category" class="nav-dropdown-item nav-component" type="button">Create Category</button>
+                        <button id="action-delete-category" class="nav-dropdown-item nav-component" type="button">Delete Category</button>
+                        <button id="action-rename-category" class="nav-dropdown-item nav-component" type="button">Rename Category</button>
+                        <button id="action-update-subscriptions" class="nav-dropdown-item nav-component" type="button">Update Subscriptions</button>
+                        <form action="{{ url_for('logout') }}" method="post">
+                            <button type="submit" class="nav-dropdown-item nav-component">Log Out</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+
+                <a
+                href="{{ url_for('admin') }}"
+                class="nav-component {% if request.endpoint == 'admin' %}active{% endif %}"
+                >
+                    Admin
+                </a>
+            </div>
+        </nav>
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        {% block scripts %}
+            <script src="{{ url_for('static', filename='js/scroll_horizontal.js') }}" defer></script>
+            <script src="{{ url_for('static', filename='js/scroll_vertical.js') }}" defer></script>
+        {% endblock %}
+    </body>
+</html>

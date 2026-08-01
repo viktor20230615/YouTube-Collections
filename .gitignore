@@ -1,0 +1,20 @@
+# Environment variables
+.env
+*.env
+
+# Python virtual environment
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local secrets
+client_secret.json
+
+# Local database
+youtube_collections.db
+
+# macOS files
+.DS_Store
