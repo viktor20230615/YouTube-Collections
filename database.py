@@ -280,6 +280,7 @@ def get_categories(user_id):
         SELECT id, name
         FROM categories
         WHERE user_id = ?
+        ORDER BY categories.name COLLATE NOCASE ASC
     ''', (user_id,))
 
     categories = [{"category_id": r[0], "category_name": r[1]} for r in cur.fetchall()]
@@ -699,7 +700,7 @@ def get_used_category_names(user_id):
         WHERE
             categories.user_id = ?
         ORDER BY
-            categories.name ASC
+            categories.name COLLATE NOCASE ASC
     ''', (user_id,))
 
     category_names = []
